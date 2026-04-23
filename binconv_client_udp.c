@@ -7,11 +7,10 @@
 #include <stdio.h>
 
 struct sockaddr_in serv_addr;
-
 int sockfd, r, w;
 unsigned short serv_port = 25020;
 char serv_ip[] = "127.0.0.1";
-char buff[256];
+char buff[512];
 
 int main()
 {
@@ -20,7 +19,7 @@ int main()
     serv_addr.sin_port = htons(serv_port);
     inet_aton(serv_ip, (&serv_addr.sin_addr));
 
-    printf("\nUDP BINARY CONVERTER CLIENT.\n");
+    printf("\nUNIFIED UDP CLIENT.\n");
 
     if((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
     {
@@ -28,13 +27,19 @@ int main()
         exit(1);
     }
 
-    printf("\nCLIENT: Connected to converter server.\n");
-    printf("Commands:\nB <number> - Decimal to Binary\nD <binary> - Binary to Decimal\nexit - Quit\n");
+    printf("\nCLIENT: Connected to unified server.\n");
+    printf("--- Multi-Function Client ---\n");
+    printf("Commands:\n");
+    printf("  B <number>     - Decimal to Binary\n");
+    printf("  D <binary>     - Binary to Decimal\n");
+    printf("  M <expression> - Math calculation (BODMAS)\n");
+    printf("  exit           - Quit\n\n");
+    
     int len = sizeof(serv_addr);
 
     while(1)
     {
-        printf("\nEnter request: ");
+        printf("Enter Request: ");
         fgets(buff, 256, stdin);
         buff[strcspn(buff, "\n")] = '\0';
 
@@ -47,13 +52,13 @@ int main()
         if(strncmp(buff, "exit", 4) == 0)
             break;
 
-        bzero(buff, 256);
-        if((r = recvfrom(sockfd, buff, 256, 0, (struct sockaddr*)&serv_addr, &len)) < 0)
+        bzero(buff, 512);
+        if((r = recvfrom(sockfd, buff, 512, 0, (struct sockaddr*)&serv_addr, &len)) < 0)
             printf("\nCLIENT ERROR: Cannot receive.\n");
         else
         {
             buff[r] = '\0';
-            printf("\nResponse: %s", buff);
+            printf("Response: %s\n", buff);
         }
     }
     close(sockfd);
